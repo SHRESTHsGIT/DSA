@@ -1,6 +1,6 @@
 #include <iostream>
 #include <queue>
-#include <bits/stdc++.h>
+#include "bits/stdc++.cpp"
 using namespace std;
 class node
 {

@@ -1,6 +1,7 @@
 #include "bits/stdc++.cpp"
 using namespace std;
 class trie;
+/// 
 class Trienode
 {
     friend class trie;

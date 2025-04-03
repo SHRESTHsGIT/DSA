@@ -1,0 +1,15 @@
+Virtual Round Robin (VRR) Scheduling Results
+============================================
+
+Process ID  Arrival Time  Completion Time Response Time Turnaround Time Waiting Time  
+--------------------------------------------------------------------------------------
+P0          0             0               0             0               -24           
+P1          3             62              2             0               0             
+P2          8             101             7             0               0             
+P3          15            50              10            0               0             
+
+Summary:
+--------
+Average Response Time: 4.75
+Average Turnaround Time: 0
+Average Waiting Time: -6

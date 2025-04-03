@@ -1,0 +1,15 @@
+Round Robin Scheduling Results
+==============================
+
+Process ID  Arrival Time  Completion Time Response Time Turnaround Time Waiting Time  
+--------------------------------------------------------------------------------------
+P0          0             66              0             66              42            
+P1          3             62              2             59              42            
+P2          8             101             7             93              43            
+P3          15            50              10            35              25            
+
+Summary:
+--------
+Average Response Time: 4.75
+Average Turnaround Time: 63.25
+Average Waiting Time: 38

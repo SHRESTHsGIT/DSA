@@ -1,0 +1,15 @@
+SJF Scheduling Results
+======================
+
+Process ID  Arrival Time  Completion Time Response Time Turnaround Time Waiting Time  
+--------------------------------------------------------------------------------------
+P0          0             0               0             0               -24           
+P1          3             61              -1            0               0             
+P2          8             102             -1            0               0             
+P3          15            91              -1            0               0             
+
+Summary:
+--------
+Average Response Time: -0.75
+Average Turnaround Time: 0
+Average Waiting Time: -6

@@ -565,23 +565,23 @@ void vrr(vector<Process> &P) {
     outfile << "Average Turnaround Time: " << avg_turnaround << endl;
     outfile << "Average Waiting Time: " << avg_wait << endl;
     
-    // Also print to console that the output has been saved
+    
     cout << "VRR scheduling results have been saved to 'vrr_scheduling_results.txt'" << endl;
     
-    // Close the file
+    
     outfile.close();
 }
 
 
 int main() {
-    // Create test processes with parameters (id, arrival_time, total_cpu_burst, cpu_burst_interval, io_burst)
+    //parameters (id, arrival_time, total_cpu_burst, cpu_burst_interval, io_burst)
     vector<Process> P;
 P.push_back(Process(0, 0, 24, 5, 2));
 P.push_back(Process(1, 3, 17, 6, 3));
 P.push_back(Process(2, 8, 50, 5, 2));
 P.push_back(Process(3, 15, 10, 6, 3));
     
-    // Run the SRTF scheduling algorithm
+    
     srtf(P);
     sjf(P);
     round_robin(P,5);

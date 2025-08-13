@@ -285,58 +285,364 @@ You will triangulate the polygon. For each triangle, the weight of that triangle
 
 Return the minimum possible score that you can achieve with some triangulation of the polygon.
 */
-int solmst(vector<int> &values,int l,int h)
+int solmst(vector<int> &values, int l, int h)
 {
     // base case
-    if(l+1==h) return 0;
-    int mini=INT_MAX;
+    if (l + 1 == h)
+        return 0;
+    int mini = INT_MAX;
 
-    for(int i=l+1;i<h;i++)
+    for (int i = l + 1; i < h; i++)
     {
-        int ans=values[l]*values[i]*values[h] +solmst(values,l,i)+solmst(values,i,h);
-        mini=min(mini,ans);
+        int ans = values[l] * values[i] * values[h] + solmst(values, l, i) + solmst(values, i, h);
+        mini = min(mini, ans);
     }
     return mini;
 }
-int memsolmst(vector<int> &values,int l,int h,vector< vector<int> > &dp)
+int memsolmst(vector<int> &values, int l, int h, vector<vector<int>> &dp)
 {
-    if(l+1==h) return 0;
-    int mini=INT_MAX;
+    if (l + 1 == h)
+        return 0;
+    int mini = INT_MAX;
 
-    if(dp[l][h]!=-1) return dp[l][h];
-    for(int i=l+1;i<=h;i++)
+    if (dp[l][h] != -1)
+        return dp[l][h];
+    for (int i = l + 1; i <= h; i++)
     {
-        int ans=values[l]*values[i]*values[h] +memsolmst(values,i,h,dp)+ memsolmst(values,l,i,dp);
-        mini=min(mini,ans);
-        dp[l][h]=mini;
+        int ans = values[l] * values[i] * values[h] + memsolmst(values, i, h, dp) + memsolmst(values, l, i, dp);
+        mini = min(mini, ans);
+        dp[l][h] = mini;
     }
     return dp[l][h];
-
 }
-
 
 int minScoreTriangulation(vector<int> &values)
 {
-    
-    int n=values.size();
-    int h=n-1;
-    vector<vector<int> > dp2(n,vector<int>(n,0));
-    vector< vector<int> > dp(values.size(),vector<int> (n,-1));
-    for(int l=n-1;l>=0;l--)
+
+    int n = values.size();
+
+    vector<vector<int>> dp(n, vector<int>(n, 0));
+    vector<vector<int>> dp2(values.size(), vector<int>(n, -1));
+    for (int l = n - 1; l >= 0; l--)
     {
-        int mini=INT_MAX;
-        for(int i=l;i<n-1;i++)
+
+        for (int h = l + 2; h < n; h++)
         {
-            mini=min(mini,values[l]*values[i]*values[n-1]+dp2[l][i]+dp2[i][h]);
+            int mini = INT_MAX;
+            for (int i = l + 1; i < h; i++)
+            {
+                int ans = values[l] * values[i] * values[h] + dp[i][h] + dp[l][i];
+                mini = min(mini, ans);
+            }
+            dp[l][h] = mini;
         }
-        dp[l][h]=mini;
     }
-    return dp[0][h];
-    //return solmst(values,0,values.size()-1);
-    return memsolmst(values,0,n-1,dp);
+    return dp[0][n - 1];
+    // return solmst(values,0,values.size()-1);
+    // return memsolmst(values,0,n-1,dp2);
+}
+/*
+There is a 3 lane road of length n that consists of n + 1 points labeled from 0 to n. A frog starts at point 0 in the second lane and wants to jump to point n. However, there could be obstacles along the way.
+
+You are given an array obstacles of length n + 1 where each obstacles[i] (ranging from 0 to 3) describes an obstacle on the lane obstacles[i] at point i. If obstacles[i] == 0, there are no obstacles at point i. There will be at most one obstacle in the 3 lanes at each point.
+
+For example, if obstacles[2] == 1, then there is an obstacle on lane 1 at point 2.
+The frog can only travel from point i to point i + 1 on the same lane if there is not an obstacle on the lane at point i + 1. To avoid obstacles, the frog can also perform a side jump to jump to another lane (even if they are not adjacent) at the same point if there is no obstacle on the new lane.
+
+For example, the frog can jump from lane 3 at point 3 to lane 1 at point 3.
+Return the minimum number of side jumps the frog needs to reach any lane at point n starting from lane 2 at point 0.
+
+Note: There will be no obstacles on points 0 and n.
+*/
+int solminside(vector<int> &obs, int i, int pos)
+{
+    if (i == obs.size() - 1)
+        return 0;
+
+    int mini = INT_MAX;
+    for (int k = 1; k <= 3; k++)
+    {
+        int ans = INT_MAX;
+        if (obs[i + 1] != k)
+        {
+            if (pos == k)
+            {
+                ans = solminside(obs, i + 1, k);
+            }
+            else
+            {
+                if (obs[i] != k)
+                    ans = 1 + solminside(obs, i + 1, k);
+            }
+        }
+        mini = min(mini, ans);
+    }
+
+    return mini;
 }
 
+int solminsidemem(vector<int> &obs, int i, int pos, vector<vector<int>> &dp)
+{
+
+    if (i == obs.size() - 1)
+        return 0;
+    if (dp[i][pos] != -1)
+        return dp[i][pos];
+    int mini = INT_MAX;
+    for (int k = 1; k <= 3; k++)
+    {
+        int ans = INT_MAX;
+        if (obs[i + 1] != k)
+        {
+            if (pos == k)
+            {
+                ans = solminsidemem(obs, i + 1, k, dp);
+            }
+            else
+            {
+                if (obs[i] != k)
+                    ans = 1 + solminsidemem(obs, i + 1, k, dp);
+            }
+        }
+        mini = min(mini, ans);
+    }
+    dp[i][pos] = mini;
+    return mini;
+}
+int minSideJumps(vector<int> &obstacles)
+{
+    int ans = 0;
+    int n = obstacles.size();
+    vector<vector<int>> dp2(n, vector<int>(3, -1));
+    vector<vector<int>> dp(n, vector<int>(3, 0));
+    for (int i = 0; i < 3; i++)
+    {
+        if (obstacles[n - 1] == i + 1)
+            dp[n - 1][i] = INT_MAX;
+    }
+
+    for (int i = n - 2; i >= 0; i--)
+    {
+
+        for (int pos = 1; pos <= 3; pos++) // i par pos
+        {
+            if (obstacles[i] == pos)
+            {
+                dp[i][pos - 1] = INT_MAX;
+                continue;
+            }
+            int mini = INT_MAX;
+            for (int k = 1; k <= 3; k++) // i+1 par pos
+            {
+                int ans = INT_MAX;
+                if (obstacles[i + 1] != k)
+                {
+                    if (pos == k)
+                    {
+                        ans = dp[i + 1][k - 1];
+                    }
+                    else
+                    {
+                        if (obstacles[i] != k)
+                            if (dp[i + 1][k - 1] != INT_MAX)
+                                ans = 1 + dp[i + 1][k - 1];
+                    }
+                }
+                mini = min(mini, ans);
+            }
+            dp[i][pos - 1] = mini;
+        }
+    }
+
+    // ans = solminsidemem(obstacles, 0, 2, dp2);
+    // ans = solminside(obstacles, 0, 2);
+    // if (ans == INT_MAX)
+    //     return 0;
+    // return ans;
+    return dp[0][1];
+}
+/*
+A chef has collected data on the satisfaction level of his n dishes. Chef can cook any dish in 1 unit of time.
+
+Like-time coefficient of a dish is defined as the time taken to cook that dish including previous dishes multiplied by its satisfaction level i.e. time[i] * satisfaction[i].
+
+Return the maximum sum of like-time coefficient that the chef can obtain after preparing some amount of dishes.
+*/
+int msatfolve(vector<int> &sat, int i, int vno, vector<vector<int>> &dp)
+{
+    if (sat.size() == i)
+    {
+        return 0;
+    }
+    if (dp[i][vno] != -1)
+        return dp[i][vno];
+    int inclu = (vno + 1) * sat[i] + msatfolve(sat, i + 1, vno + 1, dp);
+    int exclu = msatfolve(sat, i + 1, vno, dp);
+    dp[i][vno] = max(inclu, exclu);
+    return dp[i][vno];
+}
+int maxSatisfaction(vector<int> &satisfaction)
+{
+    int n = satisfaction.size();
+    sort(satisfaction.begin(), satisfaction.end());
+    vector<vector<int>> dp1(n, vector<int>(n + 1, -1));
+    vector<vector<int>> dp(n, vector<int>(n, 0));
+    for (int i = n - 1; i >= 0; i--)
+    {
+        for (int vno = i; vno >= 0; vno--)
+        {
+
+            int inclu = (vno + 1) * satisfaction[i] + dp[i + 1][vno + 1];
+            int exclu = dp[i + 1][vno];
+            dp[i][vno] = max(inclu, exclu);
+        }
+    }
+
+    // int ans = msatfolve(satisfaction, 0, 0, dp1);
+    //  for(int i=0;i<n+1;i++)
+    //  {
+    //      for(int j=0;j<n+1;j++)
+    //      {
+    //          cout<<dp1[i][j]<<',';
+    //      }
+    //      cout<<"\n";
+    //  }
+    return dp[0][0];
+}
+/*
+Longest increasing subsequence-Given an integer array nums, return the length of the longest strictly increasing subsequence.
+*/
+int sollol(vector<int> &num, int i, int prev, vector<vector<int>> &dp)
+{
+    if (i == num.size())
+    {
+        return 0;
+    }
+
+    if (dp[i][prev + 1] != -1)
+    {
+        return dp[i][prev + 1];
+    }
+    int inclu = 0;
+    if (prev == -1 || num[prev] < num[i])
+    {
+        inclu = 1 + sollol(num, i + 1, i, dp);
+    }
+
+    int exclu = sollol(num, i + 1, prev, dp);
+    dp[i][prev + 1] = max(inclu, exclu);
+    return dp[i][prev + 1];
+}
+int lengthOfLIS(vector<int> &num)
+{
+    int n = num.size();
+    vector<vector<int>> dp1(n + 1, vector<int>(n + 1, -1));
+    vector<vector<int>> dp(n + 1, vector<int>(n + 1, 0));
+    for (int i = n - 1; i >= 0; i--)
+    {
+        for (int prev = i - 1; prev >= -1; prev--)
+        {
+            int include = 0;
+            if (prev == -1 || num[i] > num[prev])
+            {
+                include = 1 + dp[i + 1][i + 1];
+            }
+            int exclude = dp[i + 1][prev + 1];
+            dp[i][prev + 1] = max(include, exclude);
+        }
+    }
+    return dp[0][0];
+    int ans = sollol(num, 0, -1, dp1);
+    return ans;
+}
+/*
+You are given a 2D array of integers envelopes where envelopes[i] = [wi, hi] represents the width and the height of an envelope.
+
+One envelope can fit into another if and only if both the width and height of one envelope are greater than the other envelope's width and height.
+
+Return the maximum number of envelopes you can Russian doll (i.e., put one inside the other).
+
+Note: You cannot rotate an envelope.
+
+*/
+
+int maxEnvelopes(vector<vector<int>> &arr)
+{
+    int n = arr.size();
+    sort(arr.begin(), arr.end(), [](const vector<int> &a, const vector<int> &b)
+         {
+                 if (a[0] != b[0])
+                     return a[0] < b[0];
+                 else
+                     return a[1] > b[1]; });
+
+    vector<int> req(n);
+    for (int i = 0; i < n; i++)
+    {
+        req[i] = arr[i][1];
+    }
+
+    vector<int> lis;
+    for (int i = 0; i < req.size(); i++)
+    {
+        int h = req[i];
+        int pos = lower_bound(req.begin(), req.end(), req[i]) - req.begin();
+
+        if (pos == lis.size())
+        {
+            lis.push_back(h);
+        }
+        else
+        {
+            lis[pos] = h;
+        }
+    }
+
+    return lis.size();
+}
 //
+/*
+There is a pizza with 3n slices of varying size, you and your friends will take slices of pizza as follows:
+
+You will pick any pizza slice.
+Your friend Alice will pick the next slice in the anti-clockwise direction of your pick.
+Your friend Bob will pick the next slice in the clockwise direction of your pick.
+Repeat until there are no more slices of pizzas.
+Given an integer array slices that represent the sizes of the pizza slices in a clockwise direction, return the maximum possible sum of slice sizes that you can pick.
+*/
+
+int algo(int in, int hi, vector<int> &A, int n,vector<vector<int> >&dp)
+{
+    if (n == 0 || in > hi)
+    {
+        return 0;
+    }
+    if(dp[in][n]!=-1)
+    {
+        return dp[in][n];
+    }
+    int taken = A[in] + algo(in + 2, hi, A, n - 1,dp);
+    int nottaken = 0 + algo(in + 1, hi, A, n,dp);
+    dp[in][n]=max(taken, nottaken);
+    return dp[in][n];
+}
+
+int maxSizeSlices(vector<int> &slices)
+{
+    // vector<vector<int>> dp(slices.size() + 1, vector<int>(slices.size() + 1, -1));
+    // int n = slices.size();
+    // vector<bool> B(n, false);
+    // int taken = 0;
+    // int ans = algo(slices, B, 0, dp);
+    // return ans;
+    int n = slices.size();
+    vector<vector<int > > b(n,vector <int>(n,-1) );
+    vector<vector<int > > B(n,vector <int>(n,-1) );
+    int c1 = algo(0, n - 2, slices, n / 3,B);
+    int c2 = algo(1, n - 1, slices, n / 3,b);
+    return max(c1, c2);
+}
+
 int fib(int n)
 {
     // base case

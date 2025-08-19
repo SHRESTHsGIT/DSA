@@ -611,19 +611,19 @@ Repeat until there are no more slices of pizzas.
 Given an integer array slices that represent the sizes of the pizza slices in a clockwise direction, return the maximum possible sum of slice sizes that you can pick.
 */
 
-int algo(int in, int hi, vector<int> &A, int n,vector<vector<int> >&dp)
+int algo(int in, int hi, vector<int> &A, int n, vector<vector<int>> &dp)
 {
     if (n == 0 || in > hi)
     {
         return 0;
     }
-    if(dp[in][n]!=-1)
+    if (dp[in][n] != -1)
     {
         return dp[in][n];
     }
-    int taken = A[in] + algo(in + 2, hi, A, n - 1,dp);
-    int nottaken = 0 + algo(in + 1, hi, A, n,dp);
-    dp[in][n]=max(taken, nottaken);
+    int taken = A[in] + algo(in + 2, hi, A, n - 1, dp);
+    int nottaken = 0 + algo(in + 1, hi, A, n, dp);
+    dp[in][n] = max(taken, nottaken);
     return dp[in][n];
 }
 
@@ -636,11 +636,95 @@ int maxSizeSlices(vector<int> &slices)
     // int ans = algo(slices, B, 0, dp);
     // return ans;
     int n = slices.size();
-    vector<vector<int > > b(n,vector <int>(n,-1) );
-    vector<vector<int > > B(n,vector <int>(n,-1) );
-    int c1 = algo(0, n - 2, slices, n / 3,B);
-    int c2 = algo(1, n - 1, slices, n / 3,b);
+    vector<vector<int>> b(n, vector<int>(n, -1));
+    vector<vector<int>> B(n, vector<int>(n, -1));
+    vector<vector<int>> dp(n + 2, vector<int>(n + 2, 0));
+    for (int in = n - 2; in >= 0; in--)
+    {
+        for (int tn = 0; tn < n / 3; tn++)
+        {
+            int taken = slices[in] + dp[in + 2][tn - 1];
+            int ntaken = 0 + dp[in + 1][tn];
+            dp[in][tn] = max(taken, ntaken);
+        }
+    }
+    vector<vector<int>> dp2(n + 2, vector<int>(n + 2, 0));
+    int cc1 = dp[0][n / 3];
+    for (int in = n - 1; in >= 1; in--)
+    {
+        for (int tn = 0; tn < n / 3; tn++)
+        {
+            int taken = slices[in] + dp2[in + 2][tn - 1];
+            int ntaken = 0 + dp2[in + 1][tn];
+            dp2[in][tn] = max(taken, ntaken);
+        }
+    }
+
+    int cc2 = dp2[1][n / 3];
+    return max(cc2, cc1);
+    int c1 = algo(0, n - 2, slices, n / 3, B);
+    int c2 = algo(1, n - 1, slices, n / 3, b);
     return max(c1, c2);
+    int k = n / 3;
+}
+/*
+You have n dice, and each dice has k faces numbered from 1 to k.
+
+Given three integers n, k, and target, return the number of possible ways (out of the kn total ways) to roll the dice, so the sum of the face-up numbers equals target. Since the answer may be too large, return it modulo 109 + 7.
+
+
+*/
+int nrtalgo(int n, int k, int t, int di, vector<vector<int>> &dp)
+{
+    if (t == 0 && di == n)
+    {
+        return 1;
+    }
+    if (di > n)
+    {
+        return 0;
+    }
+    if (t <= 0)
+    {
+        return 0;
+    }
+    if (dp[t][di] != -1)
+    {
+        return dp[t][di];
+    }
+    long long sum = 0;
+    for (int i = 1; i <= k; i++)
+    {
+        int re = nrtalgo(n, k, t - i, di + 1, dp);
+        sum = sum + re;
+    }
+    const int MOD = 1000000007;
+    dp[t][di] = sum % MOD;
+    return dp[t][di];
+}
+int numRollsToTarget(int n, int k, int target)
+{
+    vector<vector<int>> b(target + 1, vector<int>(n + 1, -1));
+    vector<vector<int>> dp(target + 1, vector<int>(n + 1, 0));
+    dp[0][n] = 1;
+    for (int t = 0; t <= target; t++)
+    {
+        for (int di = n-1; di >= 0; di--)
+        {
+            long long sum = 0;
+            for (int i = 1; i <= k; i++)
+            
+            {
+                if (t - i < 0 || di + 1 > n)
+                    break;
+                sum = sum + dp[t - i][di + 1];
+            }
+            const int MOD = 1000000007;
+            dp[t][di] = sum % MOD;
+        }
+    }
+    return dp[target][0];
+    return nrtalgo(n, k, target, 0, b);
 }
 
 int fib(int n)

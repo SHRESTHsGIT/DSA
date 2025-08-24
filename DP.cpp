@@ -709,11 +709,11 @@ int numRollsToTarget(int n, int k, int target)
     dp[0][n] = 1;
     for (int t = 0; t <= target; t++)
     {
-        for (int di = n-1; di >= 0; di--)
+        for (int di = n - 1; di >= 0; di--)
         {
             long long sum = 0;
             for (int i = 1; i <= k; i++)
-            
+
             {
                 if (t - i < 0 || di + 1 > n)
                     break;
@@ -725,6 +725,69 @@ int numRollsToTarget(int n, int k, int target)
     }
     return dp[target][0];
     return nrtalgo(n, k, target, 0, b);
+}
+
+/*
+Given an integer array nums, return true if you can partition the array into two subsets such that the sum of the elements in both subsets is equal or false otherwise.
+
+
+*/
+
+bool algocp(vector<int> &nums, int n, int i, int tar, vector<vector<int>> &dp)
+{
+    if (tar == 0)
+    {
+        return true;
+    }
+    if (i >= n || tar < 0)
+    {
+        return false;
+    }
+
+    if (dp[i][tar] != -1)
+    {
+        return dp[i][tar];
+    }
+    int in_bag = algocp(nums, n, i + 1, tar - nums[i], dp);
+    int n_bag = algocp(nums, n, i + 1, tar, dp);
+    if (in_bag || n_bag)
+        dp[i][tar] = 1;
+    else
+        dp[i][tar] = 0;
+    return in_bag || n_bag;
+}
+bool canPartition(vector<int> &nums)
+{
+    int sum = accumulate(nums.begin(), nums.end(), 0);
+    if (sum % 2 != 0)
+    {
+        return false;
+    }
+    int target = sum / 2;
+    int n = nums.size();
+    vector<vector<int>> b(n, vector<int>(target, -1));
+    vector<vector<bool>> dp(n + 1, vector<bool>(target + 1, false));
+    for (int i = 0; i <= n; i++)
+    {
+        dp[i][0] = true;
+    }
+    for (int i = n - 1; i >= 0; i--)
+    {
+        for (int j = 0; j <= target; j++)
+        {
+            bool in_bag = false;
+            bool n_bag = dp[i + 1][j];
+
+            if (j - nums[i] >= 0)
+            {
+                in_bag = dp[i + 1][j - nums[i]];
+            }
+
+            dp[i][j] = in_bag || n_bag;
+        }
+    }
+    return dp[0][target];
+    return algocp(nums, n, 0, target, b);
 }
 
 int fib(int n)

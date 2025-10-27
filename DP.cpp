@@ -790,6 +790,83 @@ bool canPartition(vector<int> &nums)
     return algocp(nums, n, 0, target, b);
 }
 
+/*
+You are given two integer arrays of the same length nums1 and nums2. In one operation, you are allowed to swap nums1[i] with nums2[i].
+
+For example, if nums1 = [1,2,3,8], and nums2 = [5,6,7,4], you can swap the element at i = 3 to obtain nums1 = [1,2,3,4] and nums2 = [5,6,7,8].
+Return the minimum number of needed operations to make nums1 and nums2 strictly increasing. The test cases are generated so that the given input always makes it possible.
+*/
+int solvemin(vector<int> &nums1, vector<int> &nums2, int in, int swa, vector<vector<int>> &dp)
+{
+    if (in == nums1.size() || in == nums2.size())
+    {
+        return 0;
+    }
+    if (dp[in][swa] != -1)
+    {
+        return dp[in][swa];
+    }
+    int prev1 = nums1[in - 1];
+    int prev2 = nums2[in - 1];
+
+    if (swa)
+    {
+        swap(prev1, prev2);
+    }
+    int ans = INT_MAX;
+    if (nums1[in] > prev1 && nums2[in] > prev2)
+    {
+        ans = solvemin(nums1, nums2, in + 1, 0, dp);
+    }
+
+    if (nums1[in] > prev2 && nums2[in] > prev1)
+    {
+        ans = min(ans, 1 + solvemin(nums1, nums2, in + 1, 1, dp));
+    }
+    dp[in][swa] = ans;
+    return ans;
+}
+
+int minSwap(vector<int> &nums1, vector<int> &nums2)
+{
+    int n = max(nums1.size(), nums2.size());
+    nums1.insert(nums1.begin(), -1);
+    nums2.insert(nums2.begin(), -1);
+    int n2 = min(nums1.size(), nums2.size());
+    vector<vector<int>> dp2(n + 1, vector<int>(2, -1));
+    vector<vector<int>> dp(n2 + 1, vector<int>(2, 0));
+
+    for (int i = n2 - 1; i >= 1; i--)
+    {
+        for (int j = 1; j >= 0; j--)
+        {
+            int prev1 = nums1[i - 1];
+            int prev2 = nums2[i - 1];
+
+            if (j)
+            {
+                swap(prev1, prev2);
+            }
+            int ans = INT_MAX;
+            if (nums1[i] > prev1 && nums2[i] > prev2)
+            {
+                ans = dp[i + 1][0];
+            }
+
+            if (nums1[i] > prev2 && nums2[i] > prev1)
+            {
+                ans = min(ans, 1 + dp[i + 1][1]);
+            }
+            dp[i][j] = ans;
+        }
+    }
+    return dp[0][0];
+
+    bool swapped = 0;
+    int ans = solvemin(nums1, nums2, 1, 0, dp2);
+    return ans;
+}
+
 int fib(int n)
 {
     // base case
@@ -868,4 +945,168 @@ int main()
 {
 
     return 0;
+}
+/*
+Given an array nums of integers, return the length of the longest arithmetic subsequence in nums.
+
+Note that:
+
+A subsequence is an array that can be derived from another array by deleting some or no elements without changing the order of the remaining elements.
+A sequence seq is arithmetic if seq[i + 1] - seq[i] are all the same value (for 0 <= i < seq.length - 1).
+
+*/
+
+int algolas(vector<int> &nums, int n, int i, int d)
+{
+    if (i == 0)
+    {
+        return 0;
+    }
+    int ans = 0;
+    for (int j = i - 1; j >= 0; j--)
+    {
+
+        if (nums[i] - nums[j] == d)
+        {
+            ans = max(ans, 1 + algolas(nums, n, j, d));
+        }
+    }
+    return ans;
+}
+
+int algolas2(vector<int> &nums, int n, int i, int j, vector<vector<int>> &dp)
+{
+    if (j < 0)
+        return 0;
+
+    if (dp[i][j] != -1)
+        return dp[i][j];
+
+    int ans = 0;
+    int diff = nums[i] - nums[j];
+
+    for (int k = j - 1; k >= 0; k--)
+    {
+        if (nums[j] - nums[k] == diff)
+        {
+            ans = max(ans, 1 + algolas2(nums, n, j, k, dp));
+        }
+    }
+
+    dp[i][j] = ans;
+    return ans;
+}
+
+int longestArithSeqLength(vector<int> &nums)
+{
+    int n = nums.size();
+    if (n <= 2)
+        return n;
+
+    vector<vector<int>> dp(n, vector<int>(n, -1));
+    int ans = 0;
+
+    for (int i = 0; i < n; i++)
+    {
+        for (int j = 0; j < i; j++)
+        {
+            ans = max(ans, 2 + algolas2(nums, n, i, j, dp));
+        }
+    }
+
+    return ans;
+}
+
+int longestArithSeqLength(vector<int> &nums)
+{
+    int n = nums.size();
+    if (n <= 2)
+        return n;
+
+    vector<vector<int>> dp(n + 1, vector<int>(n + 1, 0));
+    int ans = 2;
+
+    for (int i = 0; i < n; i++)
+    {
+        for (int j = 0; j < i; j++)
+        {
+            int diff = nums[i] - nums[j];
+
+            for (int k = 0; k < j; k++)
+            {
+                if (nums[j] - nums[k] == diff)
+                {
+                    dp[i][j] = max(dp[i][j], 1 + dp[j][k]);
+                    break;
+                }
+            }
+            ans = max(ans, 2 + dp[i][j]);
+        }
+    }
+
+    return ans;
+}
+
+/*
+Given an integer array arr and an integer difference, return the length of the longest subsequence in arr which is an arithmetic sequence such that the difference between adjacent elements in the subsequence equals difference.
+
+A subsequence is a sequence that can be derived from arr by deleting some or no elements without changing the order of the remaining elements.
+
+
+*/
+int longestSubsequence(vector<int> &arr, int diff)
+{
+    unordered_map<int, int> dp;
+    int ans = 1;
+    for (int x : arr)
+    {
+
+        if (dp.find(x - diff) != dp.end())
+        {
+            dp[x] = dp[x - diff] + 1;
+            ans = max(ans, dp[x]);
+        }
+        else
+            dp[x] = 1;
+    }
+    return ans;
+}
+/*
+Given an integer n, return the number of structurally unique BST's (binary search trees) which has exactly n nodes of unique values from 1 to n.
+
+
+*/
+
+int algont(int lo,int hi,vector<vector<int > > &dp)
+{
+    if(lo>=hi)
+    {
+        return 1;
+    }
+    if(dp[lo][hi]!=-1)
+    {
+        return dp[lo][hi];
+    }
+    int ans=0;
+    for(int i=lo;i<=hi;i++)
+    {
+        int ri=algont(i+1,hi,dp);
+        int le=algont(lo,i-1,dp);
+        ans= ans+(ri *le);
+    }
+    dp[lo][hi]=ans;
+    return ans;
+}
+int numTrees(int n)
+{
+    if(n==1) return 1;
+    vector<vector<int > > dp(n+1,vector<int> (n+1,-1));
+    vector<vector<int > > dp(n+1,vector<int> (n+1,0));
+    for(int p=1;p<=n;p++)
+    {
+        int right=0;
+        //for rihgt
+        
+    }
+    return algont(1,n,dp);
 }

@@ -1495,3 +1495,88 @@ long long maximumProfit(vector<int> &prices, int k)
     int n = prices.size();
     return solvebs5(prices, n, k, 0, 0, 0, 0);
 }
+
+/*
+L 135
+Given two strings text1 and text2, return the length of their longest common subsequence. If there is no common subsequence, return 0.
+
+A subsequence of a string is a new string generated from the original string with some characters (can be none) deleted without changing the relative order of the remaining characters.
+
+For example, "ace" is a subsequence of "abcde".
+A common subsequence of two strings is a subsequence that is common to both strings.
+*/
+int lcssolver(string text1, string text2, int n1, int n2, int i, int j)
+{
+    if (i == n1)
+        return 0;
+    if (j == n2)
+        return 0;
+    int maxi = 0;
+    if (text1[i] == text2[j])
+    {
+        int t = 1 + lcssolver(text1, text2, n1, n2, i + 1, j + 1);
+        maxi = t;
+    }
+    else
+    {
+        int t1 = lcssolver(text1, text2, n1, n2, i, j + 1);
+        int t2 = lcssolver(text1, text2, n1, n2, i + 1, j);
+        maxi = max(t1, t2);
+    }
+    return maxi;
+}
+
+int lcssolvermem(string text1, string text2, int n1, int n2, int i, int j, vector<vector<int>> &dp)
+{
+    if (i == n1)
+        return 0;
+    if (j == n2)
+        return 0;
+    int maxi = 0;
+    if (dp[i][j] != -1)
+    {
+        return dp[i][j];
+    }
+    if (text1[i] == text2[j])
+    {
+        int t = 1 + lcssolvermem(text1, text2, n1, n2, i + 1, j + 1, dp);
+        maxi = t;
+    }
+    else
+    {
+        int t1 = lcssolvermem(text1, text2, n1, n2, i, j + 1, dp);
+        int t2 = lcssolvermem(text1, text2, n1, n2, i + 1, j, dp);
+        maxi = max(t1, t2);
+    }
+    dp[i][j] = maxi;
+    return maxi;
+}
+int longestCommonSubsequence(string text1, string text2)
+{
+    int n1 = text1.size();
+    int n2 = text2.size();
+    vector<vector<int>> dp2(n1, vector<int>(n2, -1));
+    vector<vector<int>> dp(n1 + 1, vector<int>(n2 + 1, 0));
+    for (int i = n1-1; i >= 0; i--)
+    {
+        for (int j = n2-1; j >= 0; j--)
+        {
+            int maxi = 0;
+            if (text1[i] == text2[j])
+            {
+                int t = 1 + dp[i+1][j+1];
+                maxi = t;
+            }
+            else
+            {
+                int t1 = dp[i][j+1];
+                int t2 = dp[i+1][j];
+                maxi = max(t1, t2);
+            }
+            dp[i][j] = maxi;
+            
+        }
+    }
+    return dp[0][0];
+    return lcssolvermem(text1, text2, n1, n2, 0, 0, dp2);
+}

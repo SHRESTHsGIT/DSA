@@ -1557,26 +1557,193 @@ int longestCommonSubsequence(string text1, string text2)
     int n2 = text2.size();
     vector<vector<int>> dp2(n1, vector<int>(n2, -1));
     vector<vector<int>> dp(n1 + 1, vector<int>(n2 + 1, 0));
-    for (int i = n1-1; i >= 0; i--)
+    for (int i = n1 - 1; i >= 0; i--)
     {
-        for (int j = n2-1; j >= 0; j--)
+        for (int j = n2 - 1; j >= 0; j--)
         {
             int maxi = 0;
             if (text1[i] == text2[j])
             {
-                int t = 1 + dp[i+1][j+1];
+                int t = 1 + dp[i + 1][j + 1];
                 maxi = t;
             }
             else
             {
-                int t1 = dp[i][j+1];
-                int t2 = dp[i+1][j];
+                int t1 = dp[i][j + 1];
+                int t2 = dp[i + 1][j];
                 maxi = max(t1, t2);
             }
             dp[i][j] = maxi;
-            
         }
     }
     return dp[0][0];
     return lcssolvermem(text1, text2, n1, n2, 0, 0, dp2);
+}
+
+/*
+Given a string s, find the longest palindromic subsequence's length in s.
+
+A subsequence is a sequence that can be derived from another sequence by deleting some or no elements without changing the order of the remaining elements.
+*/
+int lpsolver(string s, int i, int j, vector<vector<int>> &dp)
+{
+    if (s.size() <= i || s.size() <= j)
+    {
+        return 0;
+    }
+    if (i > j)
+        return 0;
+
+    if (dp[i][j] != -1)
+    {
+        return dp[i][j];
+    }
+    int ans = 0;
+
+    if (s[i] == s[j])
+    {
+        if (i != j)
+            ans = 2 + lpsolver(s, i + 1, j - 1, dp);
+        else
+            ans = 1 + lpsolver(s, i + 1, j - 1, dp);
+    }
+    else
+    {
+        int imove = lpsolver(s, i + 1, j, dp);
+        int jmove = lpsolver(s, i, j - 1, dp);
+        ans = max(imove, jmove);
+    }
+    return dp[i][j] = ans;
+}
+int longestPalindromeSubseq(string s)
+{
+    int n = s.size();
+    vector<vector<int>> dp1(n + 1, vector<int>(n + 1, -1));
+    vector<vector<int>> dp(n + 1, vector<int>(n + 1, 0));
+
+    for (int i = s.size() - 1; i >= 0; i--)
+    {
+        for (int j = i + 1; j < n + 1; j++)
+        {
+            int ans = 0;
+            if (s[i] == s[j - 1])
+            {
+
+                if (i != j - 1)
+                    ans = 2 + dp[i + 1][j - 1];
+                else
+                    ans = 1 + dp[i + 1][j - 1];
+            }
+            else
+            {
+                int imove = dp[i + 1][j];
+                int jmove = dp[i][j - 1];
+                ans = max(imove, jmove);
+            }
+            dp[i][j] = ans;
+        }
+    }
+    return dp[0][n];
+
+    return lpsolver(s, 0, s.size() - 1, dp1);
+}
+
+/*
+Given two strings word1 and word2, return the minimum number of operations required to convert word1 to word2.
+
+You have the following three operations permitted on a word:
+
+Insert a character
+Delete a character
+Replace a character
+
+*/
+int mindsol(string w1, string w2, int i, int j, int n1, int n2)
+{
+    if(i== n1)
+    {
+        return n2-j;
+    }
+    if(j== n2)
+    {
+        return n1-i;
+    }
+    // if (i >= n1 && j >= n2)
+    //     return 0;
+    // if(j==n2  )
+
+    int ans=0;
+    // int ans = 0;
+    if (w1[i] == w2[j])
+        ans = mindsol(w1, w2, i + 1, j + 1, w1.size(), n2);
+    else
+    {
+
+        // insert
+        string ins = w1;
+        ins.insert(i, 1, w2[j]);
+        int inse = 1 + mindsol(ins, w2, i + 1, j+1, ins.size(), n2);
+
+        // del
+        string del = w1;
+        del.erase(i, 1);
+        int deli = 1 + mindsol(del, w2, i, j, del.size(), n2);
+
+        // replace
+        string rep = w1;
+        rep[i] = w2[j];
+        int repl = 1 + mindsol(rep, w2, i + 1, j+1, rep.size(), n2);
+
+        ans = min(inse, min(deli, repl));
+    }
+    return ans;
+}
+
+
+int mindsol2(string w1, string w2,int i,int j,vector<vector<int>> &dp)
+{
+    int n1=w1.size();
+    int n2=w2.size();
+    if(i== n1)
+    {
+        return n2-j;
+    }
+    if(j== n2)
+    {
+        return n1-i;
+    }
+    
+    if(dp[i][j]!=-1)
+    {
+        return dp[i][j];
+    }
+    int ans=0;
+    // int ans = 0;
+    if (w1[i] == w2[j])
+        ans = mindsol2(w1, w2, i + 1, j + 1,dp);
+    else
+    {
+
+        // insert
+        
+        int inse = 1 + mindsol2(w1, w2, i, j+1,dp);
+
+        // del
+        
+        int deli = 1 + mindsol2(w1, w2, i+1, j,dp);
+
+        // replace
+        
+        int repl = 1 + mindsol2(w1, w2, i+1, j+1,dp);
+
+        ans = min(inse, min(deli, repl));
+    }
+    dp[i][j]=ans;
+    return ans;
+
+}
+int minDistance(string word1, string word2)
+{
+    vector<vector<int>> dp(word1.size(),vector<int>(word2.size(),-1));
+    return mindsol2(word1, word2, 0, 0,dp);
 }

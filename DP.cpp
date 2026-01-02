@@ -1660,19 +1660,19 @@ Replace a character
 */
 int mindsol(string w1, string w2, int i, int j, int n1, int n2)
 {
-    if(i== n1)
+    if (i == n1)
     {
-        return n2-j;
+        return n2 - j;
     }
-    if(j== n2)
+    if (j == n2)
     {
-        return n1-i;
+        return n1 - i;
     }
     // if (i >= n1 && j >= n2)
     //     return 0;
     // if(j==n2  )
 
-    int ans=0;
+    int ans = 0;
     // int ans = 0;
     if (w1[i] == w2[j])
         ans = mindsol(w1, w2, i + 1, j + 1, w1.size(), n2);
@@ -1682,7 +1682,7 @@ int mindsol(string w1, string w2, int i, int j, int n1, int n2)
         // insert
         string ins = w1;
         ins.insert(i, 1, w2[j]);
-        int inse = 1 + mindsol(ins, w2, i + 1, j+1, ins.size(), n2);
+        int inse = 1 + mindsol(ins, w2, i + 1, j + 1, ins.size(), n2);
 
         // del
         string del = w1;
@@ -1692,58 +1692,161 @@ int mindsol(string w1, string w2, int i, int j, int n1, int n2)
         // replace
         string rep = w1;
         rep[i] = w2[j];
-        int repl = 1 + mindsol(rep, w2, i + 1, j+1, rep.size(), n2);
+        int repl = 1 + mindsol(rep, w2, i + 1, j + 1, rep.size(), n2);
 
         ans = min(inse, min(deli, repl));
     }
     return ans;
 }
 
-
-int mindsol2(string w1, string w2,int i,int j,vector<vector<int>> &dp)
+int mindsol2(string w1, string w2, int i, int j, vector<vector<int>> &dp)
 {
-    int n1=w1.size();
-    int n2=w2.size();
-    if(i== n1)
+    int n1 = w1.size();
+    int n2 = w2.size();
+    if (i == n1)
     {
-        return n2-j;
+        return n2 - j;
     }
-    if(j== n2)
+    if (j == n2)
     {
-        return n1-i;
+        return n1 - i;
     }
-    
-    if(dp[i][j]!=-1)
+
+    if (dp[i][j] != -1)
     {
         return dp[i][j];
     }
-    int ans=0;
+    int ans = 0;
     // int ans = 0;
     if (w1[i] == w2[j])
-        ans = mindsol2(w1, w2, i + 1, j + 1,dp);
+        ans = mindsol2(w1, w2, i + 1, j + 1, dp);
     else
     {
 
         // insert
-        
-        int inse = 1 + mindsol2(w1, w2, i, j+1,dp);
+
+        int inse = 1 + mindsol2(w1, w2, i, j + 1, dp);
 
         // del
-        
-        int deli = 1 + mindsol2(w1, w2, i+1, j,dp);
+
+        int deli = 1 + mindsol2(w1, w2, i + 1, j, dp);
 
         // replace
-        
-        int repl = 1 + mindsol2(w1, w2, i+1, j+1,dp);
+
+        int repl = 1 + mindsol2(w1, w2, i + 1, j + 1, dp);
 
         ans = min(inse, min(deli, repl));
     }
-    dp[i][j]=ans;
+    dp[i][j] = ans;
     return ans;
-
 }
 int minDistance(string word1, string word2)
 {
-    vector<vector<int>> dp(word1.size(),vector<int>(word2.size(),-1));
-    return mindsol2(word1, word2, 0, 0,dp);
+    vector<vector<int>> dp(word1.size(), vector<int>(word2.size(), -1));
+    return mindsol2(word1, word2, 0, 0, dp);
+}
+
+// Given an input string (s) and a pattern (p), implement wildcard pattern matching with support for '?' and '*' where:
+
+// '?' Matches any single character.
+// '*' Matches any sequence of characters (including the empty sequence).
+// The matching should cover the entire input string (not partial).
+
+bool solvemat(string s,string p,int is,int ip)
+{
+    if (ip == p.size())
+    return is == s.size();
+
+    
+
+    if(is== s.size())
+    {
+        if(ip==p.size()-1 && p[ip]=='*') return true;
+        
+        if(p[ip]=='*' )
+        {
+            return solvemat(s,p,is,ip+1);
+        }
+        
+        return false;
+    }
+
+    if(p[ip]==s[is] || p[ip]=='?') return solvemat(s,p,is+1,ip+1);
+    if(p[ip]=='*') 
+    {
+        bool moveb=solvemat(s,p,is+1,ip+1);
+        bool movep=solvemat(s,p,is,ip+1);
+        bool moves=solvemat(s,p,is+1,ip);
+        return (moveb || moves || movep);
+    }
+    return false;
+
+}
+
+bool solvematmem(string s,string p,int is,int ip,vector<vector<int>> &dp)
+{
+    if (ip == p.size())
+    return is == s.size();
+
+    
+    if(dp[is][ip]!=-1)
+    {
+        return dp[is][ip];
+    }
+    if(is== s.size())
+    {
+        if(ip==p.size()-1 && p[ip]=='*') return true;
+        
+        for(int i=ip;i<p.size();i++)
+        {
+            if(p[i]!='*') return dp[is][ip]=false;
+        }
+        
+        return dp[is][ip]=true;
+    }
+    
+
+    if(p[ip]==s[is] || p[ip]=='?') return dp[is][ip]=solvematmem(s,p,is+1,ip+1,dp);
+    if(p[ip]=='*') 
+    {
+        bool moveb=solvematmem(s,p,is+1,ip+1,dp);
+        bool movep=solvematmem(s,p,is,ip+1,dp);
+        bool moves=solvematmem(s,p,is+1,ip,dp);
+        return dp[is][ip]=(moveb || moves || movep);
+    }
+    return dp[is][ip]=false;
+
+}
+bool isMatch(string s, string p)
+{
+    vector<vector<int>> dp2(s.size() + 1, (vector<int>(p.size() + 1, -1)));
+    vector<vector<bool>> dp(s.size() + 1, (vector<bool>(p.size() + 1, 0)));
+    int ns = s.size(), np = p.size();
+    dp[ns][np] = true;
+    // when string is empty
+    for (int j = np - 1; j >= 0; j--) {
+        if (p[j] == '*')
+            dp[ns][j] = dp[ns][j + 1];
+    }
+
+    for (int is = ns-1 ; is >= 0; is--)
+    {
+        for (int ip = np - 1; ip >= 0; ip--)
+        {
+
+            
+            if (p[ip] == s[is] || p[ip] == '?')
+                dp[is][ip] = dp[is+1][ip+1] ;
+            if (p[ip] == '*')
+            {
+                
+                bool movep = dp[is][ip+1];
+                bool moves = dp[is+1][ip];
+                dp[is][ip] = ( moves || movep);
+            }
+        
+        }
+    }
+    return dp[0][0];
+    return solvematmem(s, p, 0, 0, dp2);
 }
